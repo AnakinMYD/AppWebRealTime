@@ -24,49 +24,54 @@ const app = express();
 const server = https.createServer(credentials, app);
 const io = new Server(server);
 
+// Récupération des données JSON de l'agent
 app.use(express.json())
 
+// Vérification de la clé API
 const api_key = process.env.API_KEY;
 
 app.get('/', (req,res,next) => {
   const key = req.headers["api-key"];
 
+  // Si clé API valide alors passe à la suite du code
   if(api_key===key){
     res.status(200).json({ message: "Clé valide, accès autorisé !" });
     next()
   }
+  // Si clé API invalide stop le code et retourne une erreur
   else{
     res.status(403).json({ error: "Clé API invalide" });
   }
 
 })
 
+// Connexion avec le client
 io.on("connection", (socket) => {
   console.log("Un client est connecté :", socket.id);
 });
+
+// Récupération du fichier CSS
 app.get('/style.css', (req,res) => {
   res.sendFile(join(__dirname + '/style.css'))
 })
+// Récupération du LOGO MYD de la page WEB
 app.get('/myd.png', (req,res) => {
   res.sendFile(join(__dirname + '/myd.png'))
 })
+// Récupération de la page HTML
 app.get('/monitoring', (req, res) => {
   res.sendFile(join(__dirname + '/dashboard.html'));
 });
 
-app.get('/client.js', (req) => {
-  res.sendFile(join(__dirname + '/client.js'))
-})
 
-app.get('/', (res,req) => {
-  console.log("Salutation depuis le serveur https")
-})
-
-
+// Analyse et structure du JSON
 app.post('/', (req,res) => {
-   
+
+    
     const data = req.body
     console.log(data)
+
+    // Émissions & Structuration des données JSON vers le client
     io.emit("espace_total", data.HDD.espace_total);
     io.emit("espace_libre", data.HDD.espace_libre);
     io.emit("espace_utiliser", data.HDD.espace_utiliser);
@@ -82,6 +87,7 @@ app.post('/', (req,res) => {
     res.status(200).json({status : "ok"});
 })
 
+// Démarrage du serveur
 server.listen(3000, () => {
     console.log("server en marche à l'adresse https://localhost:3000")
 })

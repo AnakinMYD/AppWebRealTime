@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# =========================================================================================================================
+
+# Script Agent 
+# Fonction : Collecter puis envoyer les données métrique de l'ordinateur
+# Écrit par MYD
+
+
+
+# Collecte des informations du Disque Dur
 function disque_dur()
 {
     espace_total=$(df -BG | grep /dev/sda3 | awk '{print $2}' | sed 's/G//g')
@@ -8,20 +17,24 @@ function disque_dur()
     pourcentage_disk=$(df -BG | grep /dev/sda3 | awk '{print $5}' | sed 's/%//g')
 }
 
+# Collecte des informations du Processeur
 function cpu()
 {
     utilisation=$(sar -u 2 5 | grep Moyenne | sed 's/     /:/g' | sed 's/      /:/g' | sed 's/::/:/g' | sed 's/ //g'| awk -F: {'print $NF'})
     pourcentage_cpu=$(awk "BEGIN {print 100 - $utilisation}" | sed 's/ /./g')
     modele=$(sudo lshw -C CPU | grep produit | awk -F: '{print $2}' | sed 's/^[[:space:]]*//')
-    frequence=$(inxi | grep speed | awk '{print $2}'| cut -d'/' -f1)
+    frequence=$(grep "cpu MHz" /proc/cpuinfo | head -1 | awk '{print $4 " MHz"}' | sed 's/ MHz//g')
 }
 
+# Collecte des informations de la Mémoire Vive
 function ram()
 {
-    ram_total=$(inxi -m | grep System | awk '{print $4}')
-    type=$(inxi -m | grep Device-1 | awk '{print $8}')
-    ram_percent=$(inxi -m | grep System | awk '{print $NF}' | sed 's/(//g' | sed 's/)//g' | sed 's/%//g')
+    ram_total=$(free -g | awk '/^Mem:/{print $2}')
+    type=$(sudo dmidecode --type memory | grep "Type:" | sed "1d;3d" | sed 's/^[[:space:]]//g' | awk {'print $2'})
+    ram_percent=$(free | awk '/Mem:/ {printf "%.0f", $3/$2 *100}')
 }
+
+# Horaire Actuel & Temps d'utilisation de l'ordinateur
 
 function times()
 {
@@ -29,13 +42,17 @@ function times()
     boot_time=$(uptime -p | sed 's/up//g' | sed 's/^[[:space:]]//')
 }
 
+# Boucle infini pour actualisé les infos toutes les 1 seconde
 while [ true ]
 do
+
+# Appel des fonction
 disque_dur
 cpu
 ram
 times
 
+# Conversion des données collecter en JSON
 json_data=$(jq -n \
     --arg espace_total "$espace_total" \
     --arg espace_utiliser "$espace_utiliser" \
@@ -69,8 +86,10 @@ json_data=$(jq -n \
       boot_time:$boot_time}
     }')
 
+# Affichage des données pour vérifié leur intégrité
 echo "$json_data"
 
+# Transmissions des données JSON à l'adresse suivante
 curl -k -X POST https://localhost:3000 \
      -H "Content-Type: application/json" \
      -d "$json_data"
