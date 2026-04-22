@@ -9,7 +9,7 @@
 ---
 
 ## 📌 Présentation du Projet
-Réalisé dans le cadre d'un projet étudiant, ce dashboard de monitoring système en temps réel permet de surveiller les ressources d'une machine (CPU, RAM, Disque). L'objectif est de mettre en œuvre un flux de données complet et sécurisé entre un agent collecteur et une interface web dynamique.
+Réalisé dans le cadre d'un projet étudiant, ce dashboard de monitoring système en temps réel permet de surveiller les ressources d'une machine (CPU, RAM, Disque, Uptime, Boot-Time). L'objectif est de mettre en œuvre un flux de données complet et sécurisé entre un agent collecteur et une interface web dynamique.
 
 ## 🏗️ Architecture du Système
 L'application repose sur un modèle **Agent / Serveur / Client** :
@@ -56,7 +56,7 @@ npm install express socket.io dotenv
 ## ⚙️ Fonctionnement et Flux de Données
 
 ### 🔄 Collection et Transfert
-* **Extraction** : L'agent `agent.sh` isole les métriques via des outils comme `inxi`, `lscpu` (pour la fréquence CPU) et `sar`.
+* **Extraction** : L'agent `agent.sh` isole les métriques via des outils comme `free`, `lscpu` et `sar`.
 * **Formatage** : Les variables sont encapsulées dans un objet JSON structuré via **jq**.
 * **Expédition** : Les données sont envoyées au serveur via une requête `POST` sécurisée par **curl** toutes les secondes.
 
