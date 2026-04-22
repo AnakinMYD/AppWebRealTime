@@ -53,8 +53,6 @@ npm install express socket.io dotenv
 ```
 ---
 
----
-
 ## ⚙️ Fonctionnement et Flux de Données
 
 ### 🔄 Collection et Transfert
