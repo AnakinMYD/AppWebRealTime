@@ -48,6 +48,7 @@ cd keys
 openssl req -new -x509 -key private-key.pem -out cert.pem -days 365
 
 # Clé API avec variables d'environnement
+
 echo "API_KEY=AbbéGrégoire_92i" > .env
 ```
 ---
@@ -57,29 +58,26 @@ echo "API_KEY=AbbéGrégoire_92i" > .env
 ## ⚙️ Fonctionnement et Flux de Données
 
 ### 🔄 Collection et Transfert
-La donnée suit un cycle de vie automatisé pour garantir une surveillance précise :
-* **Extraction** : L'agent `agent.sh` isole les métriques système via des commandes natives Linux (`df`, `sar`, `inxi`).
-* **Formatage** : Les variables sont encapsulées dans un objet JSON structuré grâce à l'outil **jq**.
-* **Expédition** : Les métriques sont envoyées au serveur Node.js via une requête `POST` (protocole HTTPS) toutes les secondes.
+* **Extraction** : L'agent `agent.sh` isole les métriques via des outils comme `inxi`, `lscpu` (pour la fréquence CPU) et `sar`.
+* **Formatage** : Les variables sont encapsulées dans un objet JSON structuré via **jq**.
+* **Expédition** : Les données sont envoyées au serveur via une requête `POST` sécurisée par **curl** toutes les secondes.
 
 ### 🔑 Validation du Dashboard (Handshake)
-La sécurité de l'accès visuel est assurée au niveau du client :
-* **Vérification API** : Au chargement de la page de monitoring, une fonction asynchrone `GetData()` effectue une requête `fetch` vers le serveur.
-* **Header de sécurité** : Elle transmet la clé API via le header `api-key`. Si le serveur valide la clé, l'accès aux données et la connexion **Socket.io** sont autorisés.
+* **Vérification API** : Au chargement de la page, une fonction `fetch` asynchrone envoie la clé API dans les headers (`api-key`).
+* **Autorisation** : Le serveur compare cette clé avec le fichier `.env`. Si elle est valide, il autorise l'ouverture de la connexion WebSocket.
 
-### 🔗 Liaison entre les fichiers
-Le projet est architecturé de manière modulaire :
-* **`serveur.js`** : Cœur de l'application, il réceptionne le flux JSON envoyé par l'agent et le diffuse instantanément ("broadcast") vers les sockets connectés.
-* **`dashboard.html`** : Écoute les événements Socket et injecte dynamiquement les valeurs dans les balises HTML via leurs identifiants (`id`).
-* **`style.css`** : Gère l'aspect visuel et l'UX, incluant le passage automatique des barres de progression au **rouge** dès que le seuil de surcharge (**80%**) est atteint.
+### 📡 Focus Technique : Socket.io (Temps Réel)
+L'interactivité repose sur une communication **Full-Duplex** :
+* **Serveur** : Agit comme un "Hub". Dès qu'une donnée arrive en `POST`, il la diffuse immédiatement (**Broadcast**) via `io.emit()`.
+* **Client** : Reste en écoute constante. À chaque réception d'événement, il injecte les données dans le DOM (ID HTML) et met à jour les barres de progression dynamiquement via `style.css` (alerte rouge si > 80%).
 
 ---
 
-## 🔒 Sécurité et Confidentialité
-Pour respecter les standards de développement professionnels, les fichiers sensibles suivants sont exclus du dépôt via le `.gitignore` :
-* Le fichier **`.env`** (Secret API utilisé par le serveur).
-* Le répertoire **`keys/`** (Certificats SSL et Clés privées).
-* Le dossier **`node_modules/`** (Dépendances).
+## 🔒 Confidentialité (Git)
+Les fichiers sensibles suivants sont exclus du dépôt via le `.gitignore` :
+* Le fichier **`.env`** (Secret API).
+* Le répertoire **`keys/`** (Certificats et Clés privées).
+* Le dossier **`node_modules/`**.
 
 ---
 
