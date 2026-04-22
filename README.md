@@ -38,9 +38,9 @@ npm -v
 npm install express socket.io dotenv
 
 # Détail des modules installés :
-- express   : Framework web pour gérer les routes API (GET/POST)
+- express   : Framework web pour gérer les routes API (GET/POST/USE)
 - socket.io : Communication temps réel Full-Duplex
-- dotenv    : Gestion des variables d'environnement (API_KEY)
+- dotenv    : Gestion des variables d'environnement (API KEY)
 
 # Création Clé SSH et certificat SSL/TLS 
 - mkdir keys
