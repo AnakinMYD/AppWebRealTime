@@ -1,4 +1,5 @@
-# 🖥️ Live Monitoring Dashboard - Architecture DevOps
+# 🖥️ Live Monitoring Dashboard - Architecture Client/Serveur
+# Par MYD
 
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
