@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daskboard Monitoring</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <!-- Horaire général-->
+        <p>
+            <span id="uptime">
+            </span>
+        </p>
+
+        <!--Logo MYD-->
+        <img src="myd.png" alt="logo_myd">
+
+        <!--Le boot-time-->
+        <p>
+            <span id="boot-time">
+            </span>
+        </p>
+    </nav>
+
+    <div class="container">
+        <p>CPU : <span id="modele_cpu"></span></p>
+        <p>Fréquence : <span id="hz_cpu"></span></p>
+        <p>Pourcentage d'utilisation : <span id="percent_cpu"></span> </p>
+        <div class="cpu_bar">
+        <div class="cpu_progress"></div>
+        </div>
+        <br>
+
+        <p>RAM : <span id="ram_total"></span></p>
+        <p>TYPE : <span id="type"></span></p>
+        <p>Pourcentage d'utilisation: <span id="ram_percent"></span></p>
+        <div class="ram_bar">
+            <div class="ram_progress"></div>
+        </div>
+        <br>
+
+        <p>Espace Total : <span id="total_space"></span></p>
+        <p>Espace Utilisé : <span id="used_space"></span></p>
+        <p>Espace Libre : <span id="free_space"></span></p>
+        <p>Pourcentage d'utilisation : <span id="pourcent_disk"></span></p>
+        <div class="hdd_bar">
+            <div class="hdd_progress"></div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io()
+        async function GetData() {
+
+
+    // Clé API Client
+  try {
+    
+    const request = await fetch("https://localhost:3000", {
+      headers: {
+        "api-key": "AbbéGrégoire_92i" 
+      }
+    });
+
+    // Vérifie si le serveur a renvoyé une erreur HTTP
+    if (!request.ok) {
+      throw new Error(`Erreur HTTP ${request.status}`);
+    }
+
+    const data = await request.json();
+    console.log(data);
+
+  } catch (err) {
+    console.error("Fetch failed:", err);
+  }
+}
+
+// Appel de la fonction
+GetData();
+
+// Communication vers le serveur
+socket.on('connect', (res) => {
+  console.log(res)
+
+})
+
+// Retourne une erreur si problème de connexion
+socket.on('connect_error', (err) => {
+        console.log("❌ ERREUR DE CONNEXION:", err.message);
+})
+
+
+// ======================== Disque Dur ===========================
+
+// Espace total
+socket.on("espace_total", (data) => {
+  const total_space = document.getElementById("total_space")
+  if(total_space){
+    total_space.innerText = data + " Go";
+  }
+})
+
+// Espace libre
+socket.on("espace_libre", (data) => {
+    const free_space = document.getElementById("free_space")
+    if(free_space){
+        free_space.innerText = data + " Go";
+    }
+})
+
+// Espace utilisé
+socket.on("espace_utiliser", (data) => {
+    const used_space = document.getElementById("used_space")
+    if(used_space){
+        used_space.innerText = data + " Go";
+    }
+})
+
+// Pourcentage d'utilisation du disque Dur
+socket.on("pourcentage_disk", (data) => {
+    const percent_disk = document.getElementById("pourcent_disk")
+    if(percent_disk){
+        percent_disk.innerText = data + "%";
+    }
+    else
+    {
+        console.log("Balise introuvable")
+    }
+})
+
+socket.on("pourcentage_disk", (data) => {
+    const percent_disk_aff = document.querySelector(".hdd_progress");
+    if(percent_disk_aff){
+        percent_disk_aff.style.width = data + "%"
+        if (data > 80) {
+            percent_disk_aff.style.backgroundColor = "red";
+        }
+    }
+})
+
+// ======================== CPU ===========================
+
+// Mo du CPU
+socket.on("pourcentage_cpu", (data) => {
+    const percent_cpu = document.getElementById("percent_cpu")
+    if(percent_cpu){
+        percent_cpu.innerText = data + "%";
+    }
+})
+
+socket.on("pourcentage_cpu", (data) => {
+    const percent_cpu_aff = document.querySelector(".cpu_progress")
+    if(percent_cpu_aff){
+        percent_cpu_aff.style.width = data + "%";
+        if (data > 80) {
+            percent_cpu_aff.style.backgroundColor = "red";
+        }
+    }
+
+})
+
+// Modèle du CPU
+socket.on("modele", (data) => {
+    const modele = document.getElementById("modele_cpu")
+    if(modele){
+        modele.innerText = data;
+        
+    }
+    else
+    {
+        console.log("Balise introuvable")
+    }
+})
+// Fréquence du CPU
+socket.on("frequence", (data) => {
+    const hz_cpu = document.getElementById("hz_cpu")
+    if(hz_cpu){
+        hz_cpu.innerText = data + " Mhz";
+    }
+    else
+    {
+        console.log("Balise introuvable")
+    }
+})
+
+// ======================== RAM ===========================
+
+// RAM total
+socket.on("ram_total", (data) => {
+    const ram_total = document.getElementById("ram_total")
+    if(ram_total){
+        ram_total.innerText = data + " Go" ;
+    }
+    else
+    {
+        console.log("Balise introuvable")
+    }
+})
+
+// Type de RAM
+socket.on("type", (data) => {
+    const type = document.getElementById("type")
+    if(type){
+        type.innerText = data;
+    }
+    else
+    {
+        console.log("Balise introuvable")
+    }
+})
+
+// Pourcentage d'utilisation de la RAM
+socket.on("ram_percent", (data) => {
+    const ram_percent = document.getElementById("ram_percent")
+    if(ram_percent){
+        ram_percent.innerText = data + "%";
+    }
+    else
+    {
+        console.log("Balise introuvable")
+    }
+})
+
+socket.on("ram_percent", (data) => {
+    const ram_percent_aff = document.querySelector(".ram_progress")
+    if(ram_percent_aff){
+        ram_percent_aff.style.width = data + "%";
+        if (data > 80) {
+            ram_percent_aff.style.backgroundColor = "red";
+        }
+    
+    }
+})
+
+// ======================== TIME ===========================
+
+// UPTIME
+socket.on("uptime", (data) => {
+    const uptime = document.getElementById("uptime")
+    if(uptime){
+        uptime.innerText = data;
+    }
+    else
+    {
+        console.log("Balise introuvable")
+    }
+})
+
+// BOOT-TIME
+socket.on("boot-time", (data) => {
+    const bootTime = document.getElementById("boot-time")
+    if(bootTime){
+        bootTime.innerText = data;
+    }
+    else
+    {
+        console.log("Balise introuvable")
+    }
+})
+    </script>
+</body>
+</html>
