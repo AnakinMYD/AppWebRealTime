@@ -38,18 +38,18 @@ npm -v
 npm install express socket.io dotenv
 
 # Détail des modules installés :
-express   : Framework web pour gérer les routes API (GET/POST)
-socket.io : Communication temps réel Full-Duplex
-dotenv    : Gestion des variables d'environnement (API_KEY)
+- express   : Framework web pour gérer les routes API (GET/POST)
+- socket.io : Communication temps réel Full-Duplex
+- dotenv    : Gestion des variables d'environnement (API_KEY)
 
 # Création Clé SSH et certificat SSL/TLS 
-mkdir keys
-cd keys
-openssl req -new -x509 -key private-key.pem -out cert.pem -days 365
+- mkdir keys
+- cd keys
+- openssl req -new -x509 -key private-key.pem -out cert.pem -days 365
 
 # Clé API avec variables d'environnement
 
-echo "API_KEY=AbbéGrégoire_92i" > .env
+- echo "API_KEY=AbbéGrégoire_92i" > .env
 ```
 ---
 
