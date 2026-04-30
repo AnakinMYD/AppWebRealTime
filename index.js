@@ -27,6 +27,21 @@ const io = new Server(server);
 // Récupération des données JSON de l'agent
 app.use(express.json())
 
+
+// Récupération du fichier CSS
+app.get('/style.css', (req,res) => {
+  res.sendFile(join(__dirname + '/style.css'))
+})
+// Récupération du LOGO MYD de la page WEB
+app.get('/myd.png', (req,res) => {
+  res.sendFile(join(__dirname + '/myd.png'))
+})
+// Récupération de la page HTML
+app.get('/monitoring', (req, res) => {
+  res.sendFile(join(__dirname + '/dashboard.html'));
+});
+
+
 // Vérification de la clé API
 const api_key = process.env.API_KEY;
 
@@ -50,18 +65,6 @@ io.on("connection", (socket) => {
   console.log("Un client est connecté :", socket.id);
 });
 
-// Récupération du fichier CSS
-app.get('/style.css', (req,res) => {
-  res.sendFile(join(__dirname + '/style.css'))
-})
-// Récupération du LOGO MYD de la page WEB
-app.get('/myd.png', (req,res) => {
-  res.sendFile(join(__dirname + '/myd.png'))
-})
-// Récupération de la page HTML
-app.get('/monitoring', (req, res) => {
-  res.sendFile(join(__dirname + '/dashboard.html'));
-});
 
 
 // Analyse et structure du JSON
